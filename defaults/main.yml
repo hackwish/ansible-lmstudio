@@ -1,0 +1,5 @@
+---
+# defaults file for ansible-lmstudio
+appName: LM-Studio
+version: 0.3.9
+build: 6

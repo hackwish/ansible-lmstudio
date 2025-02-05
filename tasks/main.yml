@@ -1,0 +1,69 @@
+---
+# tasks file for ansible-lmstudio
+# Install from debs
+- name: Install a .deb package for LMStudio
+  apt:
+    deb: https://installers.lmstudio.ai/linux/x64/{{ version }}-{{ build }}/LM-Studio-{{ version }}-{{ build }}-x64.deb
+  when: ansible_os_family == "Debian"
+  ignore_errors: true
+  tags: lmstudio
+
+# Install DMG on MacOS
+- local_action: stat path=/Applications/{{ appName }}.app
+  register: app_exists
+  when:
+  - ansible_os_family == "Darwin"
+  - ansible_machine == "arm64"
+  ignore_errors: true
+  tags: lmstudio
+
+- command: mkdir -p ./tmp/
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: lmstudio
+
+- name: Get .dmg package for LMStudio
+  get_url: url=https://installers.lmstudio.ai/darwin/arm64/{{ version }}-{{ build }}/LM-Studio-{{ version }}-{{ build }}-arm64.dmg dest=./tmp/{{ appName }}.dmg
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: lmstudio
+
+- name: Mount package for LMStudio
+  command: hdiutil attach ./tmp/{{ appName }}.dmg -nobrowse -mountpoint ./tmp/{{ appName }}
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: lmstudio
+
+- name: Install package for LMStudio
+  shell: cp -aR ./tmp/{{ appName }}/*.app /Applications/{{ appName }}.app
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: lmstudio
+
+- command: hdiutil detach ./tmp/{{ appName }}/
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False"
+  ignore_errors: true
+  tags: lmstudio
+
+- command: rm -R ./tmp/
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False"
+  ignore_errors: true
+  tags: lmstudio
