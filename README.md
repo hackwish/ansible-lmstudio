@@ -15,8 +15,8 @@ Role Variables
 
 defaults (current):
 - appName: LM-Studio
-- version: 0.3.9
-- build: 6
+- version: 0.4.20
+- build: 1
 
 Dependencies
 ------------
